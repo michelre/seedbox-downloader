@@ -25,6 +25,12 @@
                 android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:text="@string/title_home"/>
 
+        <Button
+                android:text="Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/button2"/>
+
     </FrameLayout>
 
     <android.support.design.widget.BottomNavigationView
