@@ -4,13 +4,19 @@ import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.httpPost
-import org.json.JSONObject
+import com.github.kittinunf.fuel.core.Request
+import com.github.kittinunf.fuel.core.Response
+import com.github.kittinunf.result.Result
+import com.github.kittinunf.result.map
+import com.github.salomonbrys.kotson.fromJson
+import com.google.gson.Gson
+
+data class Torrent(val id: Int, val name: String)
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,22 +50,44 @@ class MainActivity : AppCompatActivity() {
 
         createFuelManagerInstance()
         val button = findViewById<View>(R.id.button2)
-        button.setOnClickListener { _ ->  onClickButton2Action() }
+        button.setOnClickListener { _ -> onClickButton2Action() }
 
     }
 
 
-    fun onClickButton2Action(){
+    fun onClickButton2Action() {
         val data: List<Pair<String, Any>> = listOf("method" to "torrent-get")
-        Fuel.post("/", data).response { req, res, result  -> Log.d("RES API", result.toString())}
+        val request = Fuel.post("/", data)
+        request.responseString { req, res, result ->
+            getResult(res, result, request).fold(success = { data ->
+                Log.d("RES API", data.toString())
+                data
+            }, failure = {
+                Log.d("ERROR", it.toString())
+            })
+        }
+    }
+
+    fun getResult(response: Response, result: Result<String, FuelError>, baseRequest: Request): Result<List<Torrent>, FuelError> {
+        if (response.statusCode == 409) {
+            val headers = mutableMapOf<String, String>()
+            headers += Pair("X-Transmission-Session-Id", response.headers["X-Transmission-Session-Id"].toString())
+            headers += FuelManager.instance.baseHeaders!!
+            FuelManager.instance.baseHeaders = headers
+            return deserializeTorrents(baseRequest.responseString().third)
+        }
+        return deserializeTorrents(result)
+    }
+
+    fun deserializeTorrents(result: Result<String, FuelError>): Result<List<Torrent>, FuelError> {
+        return result.map { Gson().fromJson<List<Torrent>>(it) }
     }
 
     fun createFuelManagerInstance() {
         FuelManager.instance.basePath = "http://10.0.2.2:9091/transmission/rpc"
         FuelManager.instance.baseHeaders = mapOf(
                 "Authorization" to "Basic dHJhbnNtaXNzaW9uOnRyYW5zbWlzc2lvbg==",
-                "Content-Type" to "application/json",
-                "X-Transmission-Session-Id" to "0MccShiB7ybzFZsrDna6O5HGqDMeFtPrLHXyeCEusxLoa19Z"
+                "Content-Type" to "application/json"
         )
     }
 
