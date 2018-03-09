@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     fun getResult(response: Response, result: Result<String, FuelError>, baseRequest: Request): Result<List<Torrent>, FuelError> {
         if (response.statusCode == 409) {
             val headers = mutableMapOf<String, String>()
-            headers += Pair("X-Transmission-Session-Id", response.headers["X-Transmission-Session-Id"].toString())
+            headers += Pair("X-Transmission-Session-Id", response.headers["X-Transmission-Session-Id"]!![0])
             headers += FuelManager.instance.baseHeaders!!
             FuelManager.instance.baseHeaders = headers
             return deserializeTorrents(baseRequest.responseString().third)
