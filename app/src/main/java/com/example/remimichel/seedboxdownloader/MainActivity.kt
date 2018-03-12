@@ -6,6 +6,9 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import arrow.effects.IO
+import com.example.remimichel.seedboxdownloader.data.Torrent
+import com.example.remimichel.seedboxdownloader.data.remote.getTorrents
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.FuelManager
@@ -15,8 +18,6 @@ import com.github.kittinunf.result.Result
 import com.github.kittinunf.result.map
 import com.github.salomonbrys.kotson.fromJson
 import com.google.gson.Gson
-
-data class Torrent(val id: Int, val name: String)
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,25 +48,23 @@ class MainActivity : AppCompatActivity() {
         mTextMessage = findViewById<View>(R.id.message) as TextView?
         val navigation = findViewById<View>(R.id.navigation) as BottomNavigationView
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-
-        createFuelManagerInstance()
+        initFuelSession()
         val button = findViewById<View>(R.id.button2)
         button.setOnClickListener { _ -> onClickButton2Action() }
 
     }
 
+    fun initFuelSession() {}
+
 
     fun onClickButton2Action() {
-        val data: List<Pair<String, Any>> = listOf("method" to "torrent-get")
-        val request = Fuel.post("/", data)
-        request.responseString { req, res, result ->
-            getResult(res, result, request).fold(success = { data ->
-                Log.d("RES API", data.toString())
-                data
-            }, failure = {
-                Log.d("ERROR", it.toString())
-            })
-        }
+        Log.d("__APP", "HEY")
+        getTorrents("")
+                .unsafeRunAsync { result ->
+                    result.fold(
+                            { Log.e("__APP", it.toString()) },
+                            { Log.e("__APP", it) })
+                }
     }
 
     fun getResult(response: Response, result: Result<String, FuelError>, baseRequest: Request): Result<List<Torrent>, FuelError> {
