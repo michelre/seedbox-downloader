@@ -6,19 +6,8 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.TextView
-import arrow.effects.IO
-import com.example.remimichel.seedboxdownloader.data.Torrent
 import com.example.remimichel.seedboxdownloader.data.remote.getTorrents
 import com.example.remimichel.seedboxdownloader.data.remote.getXTransmissionSessionId
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.core.FuelManager
-import com.github.kittinunf.fuel.core.Request
-import com.github.kittinunf.fuel.core.Response
-import com.github.kittinunf.result.Result
-import com.github.kittinunf.result.map
-import com.github.salomonbrys.kotson.fromJson
-import com.google.gson.Gson
 
 class MainActivity : AppCompatActivity() {
 
