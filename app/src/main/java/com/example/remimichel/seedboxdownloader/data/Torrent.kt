@@ -1,3 +1,3 @@
 package com.example.remimichel.seedboxdownloader.data
 
-data class Torrent(val id: Int, val name: String)
+data class Torrent(val id: Int, val name: String, val sizeWhenDone: Long)

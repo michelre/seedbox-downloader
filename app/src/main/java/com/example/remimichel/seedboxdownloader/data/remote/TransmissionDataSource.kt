@@ -23,7 +23,7 @@ sealed class HTTPException {
 
 fun getTorrentGetQuery() = jsonObject(
     "method" to "torrent-get",
-    "arguments" to jsonObject("fields" to jsonArray("id", "name"))).toString()
+    "arguments" to jsonObject("fields" to jsonArray("id", "name", "sizeWhenDone"))).toString()
 
 fun getFuelRequest(sessionId: String, query: String): Request = Fuel.post(baseEndpoint + "rpc")
     .header("Authorization" to credentials)
