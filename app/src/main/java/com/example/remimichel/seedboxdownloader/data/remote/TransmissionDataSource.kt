@@ -2,7 +2,6 @@ package com.example.remimichel.seedboxdownloader.data.remote
 
 import arrow.core.Either
 import arrow.effects.IO
-import com.example.remimichel.seedboxdownloader.data.Torrent
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.Request
@@ -14,6 +13,8 @@ import com.github.salomonbrys.kotson.jsonObject
 import com.google.gson.Gson
 import org.json.JSONObject
 
+data class Torrent(val id: Int, val name: String, val sizeWhenDone: Long)
+
 val baseEndpoint = "http://213.251.183.154:12754/transmission/"
 val credentials = "Basic bWljaGVscmUzODppeGU3eWllbW0zOA=="
 
@@ -22,7 +23,7 @@ sealed class HTTPException {
 }
 
 fun getTorrentGetQuery() = jsonObject(
-    "method" to "torrent-get",
+    "method" to "file-get",
     "arguments" to jsonObject("fields" to jsonArray("id", "name", "sizeWhenDone"))).toString()
 
 fun getFuelRequest(sessionId: String, query: String): Request = Fuel.post(baseEndpoint + "rpc")

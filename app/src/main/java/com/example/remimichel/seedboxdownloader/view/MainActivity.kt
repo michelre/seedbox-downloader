@@ -7,29 +7,28 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import android.widget.TextView
 import com.example.remimichel.seedboxdownloader.R
-import com.example.remimichel.seedboxdownloader.data.remote.getTorrents
-import com.example.remimichel.seedboxdownloader.data.remote.getXTransmissionSessionId
+import com.example.remimichel.seedboxdownloader.data.remote.File
+import com.example.remimichel.seedboxdownloader.data.remote.getFilesAndDirectories
 
 class MainActivity : AppCompatActivity() {
 
   private var mTextMessage: TextView? = null
-  private lateinit var adapter: TorrentAdapter
+  private lateinit var adapter: FileFTPAdapter
 
   private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
     when (item.itemId) {
       R.id.navigation_home -> {
-        mTextMessage!!.setText(R.string.title_home)
+        mTextMessage!!.setText(R.string.title_files)
         return@OnNavigationItemSelectedListener true
       }
       R.id.navigation_dashboard -> {
-        mTextMessage!!.setText(R.string.title_dashboard)
+        mTextMessage!!.setText(R.string.title_torrents)
         return@OnNavigationItemSelectedListener true
       }
       R.id.navigation_notifications -> {
-        mTextMessage!!.setText(R.string.title_notifications)
+        mTextMessage!!.setText(R.string.title_settings)
         return@OnNavigationItemSelectedListener true
       }
     }
@@ -43,31 +42,21 @@ class MainActivity : AppCompatActivity() {
     mTextMessage = findViewById<View>(R.id.message) as TextView?
     val navigation = findViewById<View>(R.id.navigation) as BottomNavigationView
     navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-    val button = findViewById<Button>(R.id.button2)
-    setupList()
-    button.setOnClickListener { _ -> onClickButton2Action() }
+    setupFTPList()
+    getFilesAndDirectories("").unsafeRunAsync { result -> result.fold({ Log.e("APPP", it.message) }, { updateFTPList(it) }) }
   }
 
-  fun setupList() {
-    val recyclerView = findViewById<RecyclerView>(R.id.torrent_view)
+  fun setupFTPList() {
+    val recyclerView = findViewById<RecyclerView>(R.id.file_view)
     recyclerView.setHasFixedSize(true)
-    adapter = TorrentAdapter()
+    adapter = FileFTPAdapter()
     recyclerView.layoutManager = LinearLayoutManager(this)
     recyclerView.adapter = adapter
   }
 
-
-  fun onClickButton2Action() {
-    getXTransmissionSessionId()
-        .flatMap { getTorrents(it) }
-        .unsafeRunAsync { result ->
-          result.fold(
-              { Log.e("APP", it.message) },
-              {
-                adapter.torrents = it
-                adapter.notifyDataSetChanged()
-              })
-        }
+  fun updateFTPList(files: List<File>) {
+    adapter.files = files
+    adapter.notifyDataSetChanged()
   }
 
 }

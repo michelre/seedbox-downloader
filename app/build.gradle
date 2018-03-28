@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-        compileSdkVersion 27
+    compileSdkVersion 27
     buildToolsVersion '25.0.0'
     defaultConfig {
         applicationId "com.example.remimichel.seedboxdownloader"
@@ -36,11 +36,14 @@ dependencies {
     compile 'io.arrow-kt:arrow-instances:0.6.1'
     compile 'io.arrow-kt:arrow-data:0.6.1'
     compile 'io.arrow-kt:arrow-syntax:0.6.1'
-    kapt    'io.arrow-kt:arrow-annotations-processor:0.6.1'
+    kapt 'io.arrow-kt:arrow-annotations-processor:0.6.1'
     compile 'io.arrow-kt:arrow-effects:0.6.1'
     testCompile 'junit:junit:4.12'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     compile 'com.android.support:recyclerview-v7:27.0.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'commons-net:commons-net:3.6'
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
 }
 repositories {
     mavenCentral()
