@@ -16,7 +16,6 @@ import org.json.JSONObject
 data class Torrent(val id: Int, val name: String, val sizeWhenDone: Long)
 
 val baseEndpoint = "http://213.251.183.154:12754/transmission/"
-val credentials = "Basic bWljaGVscmUzODppeGU3eWllbW0zOA=="
 
 sealed class HTTPException {
   object Confilct409 : HTTPException()
@@ -27,7 +26,7 @@ fun getTorrentGetQuery() = jsonObject(
     "arguments" to jsonObject("fields" to jsonArray("id", "name", "sizeWhenDone"))).toString()
 
 fun getFuelRequest(sessionId: String, query: String): Request = Fuel.post(baseEndpoint + "rpc")
-    .header("Authorization" to credentials)
+    .header("Authorization" to "")
     .header("X-Transmission-Session-Id" to sessionId)
     .body(query)
 
@@ -39,7 +38,7 @@ fun <T> makeResponse(response: Response, body: Result<String, FuelError>, cb: (S
 
 fun getXTransmissionSessionId() = IO.async<String> {
   Fuel.get(baseEndpoint)
-      .header("Authorization" to credentials)
+      .header("Authorization" to "")
       .responseString { _, res, response -> it(makeResponse(res, response, { it })) }
 }
 
