@@ -9,13 +9,15 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
-import android.widget.ListView
 import android.widget.TextView
 import com.example.remimichel.seedboxdownloader.R
 import com.example.remimichel.seedboxdownloader.data.remote.File
-import com.example.remimichel.seedboxdownloader.data.remote.getFilesAndDirectories
+import com.example.remimichel.seedboxdownloader.presenter.FtpListView
+import com.example.remimichel.seedboxdownloader.presenter.getFtpContent
+import com.example.remimichel.seedboxdownloader.presenter.onBackButtonClick
+import com.example.remimichel.seedboxdownloader.presenter.onFtpListItemClick
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), FtpListView {
 
   private var mTextMessage: TextView? = null
   private lateinit var adapter: FileFTPAdapter
@@ -48,8 +50,22 @@ class MainActivity : AppCompatActivity() {
     val navigation = findViewById<View>(R.id.navigation) as BottomNavigationView
     navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     setupFTPList()
-    getFilesAndDirectories(getCredentials("server1"), "/")
-        .unsafeRunAsync { result -> result.fold({ Log.e("APPP", it.message) }, { updateFTPList(it) }) }
+    getFtpContent(this, this.getCredentials("server1"))
+  }
+
+  override fun onBackPressed() {
+    onBackButtonClick(this, getCredentials("server1"))
+  }
+
+  override fun displayList(files: List<File>) {
+    runOnUiThread {
+      this.adapter.files = files
+      this.adapter.notifyDataSetChanged()
+    }
+  }
+
+  override fun drawError(error: Throwable) {
+    Log.e("APPP", error.message)
   }
 
   fun getCredentials(server: String): Map<String, String> {
@@ -64,17 +80,9 @@ class MainActivity : AppCompatActivity() {
   fun setupFTPList() {
     val recyclerView = findViewById<RecyclerView>(R.id.file_view)
     recyclerView.setHasFixedSize(true)
-    adapter = FileFTPAdapter(listOf(), mapOf(
-        "server1" to getCredentials("server1"),
-        "server2" to getCredentials("server2")
-    ), this)
+    adapter = FileFTPAdapter(listOf(), { onFtpListItemClick(this, this.getCredentials("server1"), it) })
     recyclerView.layoutManager = LinearLayoutManager(this)
     recyclerView.adapter = adapter
-  }
-
-  fun updateFTPList(files: List<File>) {
-    adapter.files = files
-    adapter.notifyDataSetChanged()
   }
 
 }

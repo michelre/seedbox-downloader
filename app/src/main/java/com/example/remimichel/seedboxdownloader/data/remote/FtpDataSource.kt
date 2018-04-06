@@ -1,20 +1,16 @@
 package com.example.remimichel.seedboxdownloader.data.remote
 
-import android.util.Log
-import arrow.core.Either
 import arrow.data.Try
 import arrow.effects.IO
 import arrow.effects.monad
-import arrow.syntax.applicativeerror.attempt
-import arrow.syntax.either.left
-import arrow.syntax.either.right
 import arrow.syntax.foldable.fold
-import arrow.syntax.functor.map
 import arrow.typeclasses.binding
 import kotlinx.coroutines.experimental.async
 import org.apache.commons.net.ftp.FTPClient
 
 data class File(val name: String, val isDirectory: Boolean)
+
+class CommandException(override var message: String) : Exception(message)
 
 fun getFtpClient(credentials: Map<String, String>?): FTPClient {
   val ftpClient = FTPClient()
@@ -24,12 +20,36 @@ fun getFtpClient(credentials: Map<String, String>?): FTPClient {
   return ftpClient
 }
 
+fun getFtpClient(credentials: Map<String, String>) = IO.async<Boolean> { callback ->
+    val ftpClient = FTPClient()
+    ftpClient.connect(credentials["host"])
+    val res = runInAsyncMode(ftpClient, command = { ftpClient.login(credentials["login"], credentials["password"]) })
+        .map { res ->
+          ftpClient.enterLocalPassiveMode()
+          res
+        }
+    res.
+}
+
+
+fun runInAsyncMode(ftpClient: FTPClient, command: () -> Boolean) = IO.async<Boolean> { callback ->
+  async {
+    val tryCommand = Try { command() }
+        .map { success -> if (!success) throw CommandException(ftpClient.replyString) else success }
+    callback(tryCommand.toEither())
+  }
+}
+
+
 fun getFilesAndDirectories(credentials: Map<String, String>, basePath: String) =
-    IO.async<List<File>> {
+    IO.async<List<File>> { action ->
       async {
-        val ftpClient = getFtpClient(credentials)
-        ftpClient.changeWorkingDirectory(basePath)
-        it(ftpClient.listFiles().map { File(it.name, it.isDirectory) }.right())
+        val listTry = Try {
+          val ftpClient = getFtpClient(credentials)
+          ftpClient.changeWorkingDirectory(basePath)
+          ftpClient.listFiles().map { File(it.name, it.isDirectory) }
+        }
+        action(listTry.toEither())
       }
     }
 
