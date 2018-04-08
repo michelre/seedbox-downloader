@@ -10,10 +10,7 @@ import com.example.remimichel.seedboxdownloader.data.remote.File
 
 class FileFTPAdapter(var files: List<File> = ArrayList(0), val itemClick: (File) -> Unit) : RecyclerView.Adapter<FileFTPAdapter.ViewHolder>() {
 
-  var currentPath: List<String> = listOf("/")
-
   class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-
     var name: TextView = view.findViewById(R.id.file_name)
   }
 
@@ -26,13 +23,6 @@ class FileFTPAdapter(var files: List<File> = ArrayList(0), val itemClick: (File)
     holder.name.text = files[position].name
     holder.itemView.setOnClickListener {
       itemClick(files[position])
-      /*val toPath = listOf(this.currentPath, listOf(files[position].name)).flatten()
-      when (file.isDirectory) {
-        true -> navigate(toPath)
-        else -> uploadData(toPath, credentials).unsafeRunAsync {
-          it.fold({ Log.e("APPP", it.message!!) }, { Toast.makeText(ctx, "FOOOOOO", 100) })
-        }
-      }*/
     }
   }
 

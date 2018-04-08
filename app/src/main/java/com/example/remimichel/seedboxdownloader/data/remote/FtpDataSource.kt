@@ -2,9 +2,6 @@ package com.example.remimichel.seedboxdownloader.data.remote
 
 import arrow.data.Try
 import arrow.effects.IO
-import arrow.effects.monad
-import arrow.syntax.foldable.fold
-import arrow.typeclasses.binding
 import kotlinx.coroutines.experimental.async
 import org.apache.commons.net.ftp.FTPClient
 
@@ -12,48 +9,33 @@ data class File(val name: String, val isDirectory: Boolean)
 
 class CommandException(override var message: String) : Exception(message)
 
-fun getFtpClient(credentials: Map<String, String>?): FTPClient {
-  val ftpClient = FTPClient()
-  ftpClient.connect(credentials!!["host"])
-  ftpClient.login(credentials!!["login"], credentials["password"])
-  ftpClient.enterLocalPassiveMode()
-  return ftpClient
-}
-
-fun getFtpClient(credentials: Map<String, String>) = IO.async<Boolean> { callback ->
-    val ftpClient = FTPClient()
-    ftpClient.connect(credentials["host"])
-    val res = runInAsyncMode(ftpClient, command = { ftpClient.login(credentials["login"], credentials["password"]) })
-        .map { res ->
-          ftpClient.enterLocalPassiveMode()
-          res
-        }
-    res.
-}
-
-
-fun runInAsyncMode(ftpClient: FTPClient, command: () -> Boolean) = IO.async<Boolean> { callback ->
-  async {
-    val tryCommand = Try { command() }
-        .map { success -> if (!success) throw CommandException(ftpClient.replyString) else success }
-    callback(tryCommand.toEither())
+fun <A, B> runFtpCommand(ftp: FTPClient, command: (FTPClient) -> A, onSuccess: (A) -> B): IO<B> {
+  return IO.async { callback ->
+    async {
+      val res = Try { command(ftp) }
+          .map({ res ->
+            if (res is Boolean && !res) {
+              throw CommandException(ftp.replyString)
+            }
+            onSuccess(res)
+          })
+      callback(res.toEither())
+    }
   }
 }
 
+fun connect(credentials: Map<String, String>): IO<FTPClient> {
+  val ftp = FTPClient()
+  return runFtpCommand(ftp, { it.connect(credentials["host"]) }, {})
+      .flatMap { runFtpCommand(ftp, { it.login(credentials["login"], credentials["password"]) }, { ftp }) }
+}
 
-fun getFilesAndDirectories(credentials: Map<String, String>, basePath: String) =
-    IO.async<List<File>> { action ->
-      async {
-        val listTry = Try {
-          val ftpClient = getFtpClient(credentials)
-          ftpClient.changeWorkingDirectory(basePath)
-          ftpClient.listFiles().map { File(it.name, it.isDirectory) }
-        }
-        action(listTry.toEither())
-      }
-    }
+fun getFilesAndDirectories(ftp: FTPClient, basePath: String): IO<List<File>> {
+  return runFtpCommand(ftp, { it.changeWorkingDirectory(basePath) }, { })
+      .flatMap { runFtpCommand(ftp, { it.listFiles() }, { it.map { File(it.name, it.isDirectory) } }) }
+}
 
-
+/*
 fun uploadData(filePath: List<String>, credentials: Map<String, Map<String, String>>) = IO.async<Boolean> { callback ->
   async {
     val filePathStr = filePath.joinToString("/")
@@ -80,4 +62,4 @@ fun createDirectoriesToLocation(directories: List<String>, ftpClient: FTPClient)
     null -> return IO.pure(true)
     else -> return IO.pure(directoryExists)
   }
-}
+}*/

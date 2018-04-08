@@ -12,10 +12,7 @@ import android.view.View
 import android.widget.TextView
 import com.example.remimichel.seedboxdownloader.R
 import com.example.remimichel.seedboxdownloader.data.remote.File
-import com.example.remimichel.seedboxdownloader.presenter.FtpListView
-import com.example.remimichel.seedboxdownloader.presenter.getFtpContent
-import com.example.remimichel.seedboxdownloader.presenter.onBackButtonClick
-import com.example.remimichel.seedboxdownloader.presenter.onFtpListItemClick
+import com.example.remimichel.seedboxdownloader.presenter.*
 
 class MainActivity : AppCompatActivity(), FtpListView {
 
@@ -50,7 +47,7 @@ class MainActivity : AppCompatActivity(), FtpListView {
     val navigation = findViewById<View>(R.id.navigation) as BottomNavigationView
     navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     setupFTPList()
-    getFtpContent(this, this.getCredentials("server1"))
+    initFtpContent(this, this.getCredentials("server1"))
   }
 
   override fun onBackPressed() {
@@ -65,7 +62,7 @@ class MainActivity : AppCompatActivity(), FtpListView {
   }
 
   override fun drawError(error: Throwable) {
-    Log.e("APPP", error.message)
+    Log.e("APPP", "", error)
   }
 
   fun getCredentials(server: String): Map<String, String> {
@@ -80,7 +77,7 @@ class MainActivity : AppCompatActivity(), FtpListView {
   fun setupFTPList() {
     val recyclerView = findViewById<RecyclerView>(R.id.file_view)
     recyclerView.setHasFixedSize(true)
-    adapter = FileFTPAdapter(listOf(), { onFtpListItemClick(this, this.getCredentials("server1"), it) })
+    adapter = FileFTPAdapter(listOf(), { onFtpListItemClick(this, it) })
     recyclerView.layoutManager = LinearLayoutManager(this)
     recyclerView.adapter = adapter
   }
