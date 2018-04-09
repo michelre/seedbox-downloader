@@ -10,6 +10,8 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigation
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem
 import com.example.remimichel.seedboxdownloader.R
 import com.example.remimichel.seedboxdownloader.data.remote.File
 import com.example.remimichel.seedboxdownloader.presenter.*
@@ -19,7 +21,7 @@ class MainActivity : AppCompatActivity(), FtpListView {
   private var mTextMessage: TextView? = null
   private lateinit var adapter: FileFTPAdapter
 
-  private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+  /*private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
     when (item.itemId) {
       R.id.navigation_home -> {
         mTextMessage!!.setText(R.string.title_files)
@@ -37,15 +39,21 @@ class MainActivity : AppCompatActivity(), FtpListView {
       }
     }
     false
-  }
+  }*/
+
+  //https://android.jlelse.eu/ultimate-guide-to-bottom-navigation-on-android-75e4efb8105f
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
 
     mTextMessage = findViewById<View>(R.id.message) as TextView?
-    val navigation = findViewById<View>(R.id.navigation) as BottomNavigationView
-    navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+    val navigation = findViewById<View>(R.id.bottom_navigation) as AHBottomNavigation
+    navigation.addItems(listOf(
+        AHBottomNavigationItem(getString(R.string.title_files), R.drawable.ic_home_black_24dp),
+        AHBottomNavigationItem(getString(R.string.title_torrents), R.drawable.ic_home_black_24dp),
+        AHBottomNavigationItem(getString(R.string.title_settings), R.drawable.ic_home_black_24dp)
+    ))
     setupFTPList()
     initFtpContent(this, this.getCredentials("server1"))
   }
@@ -75,11 +83,11 @@ class MainActivity : AppCompatActivity(), FtpListView {
   }
 
   fun setupFTPList() {
-    val recyclerView = findViewById<RecyclerView>(R.id.file_view)
+    /*val recyclerView = findViewById<RecyclerView>(R.id.file_view)
     recyclerView.setHasFixedSize(true)
     adapter = FileFTPAdapter(listOf(), { onFtpListItemClick(this, it) })
     recyclerView.layoutManager = LinearLayoutManager(this)
-    recyclerView.adapter = adapter
+    recyclerView.adapter = adapter*/
   }
 
 }

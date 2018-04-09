@@ -39,7 +39,7 @@ class SettingsActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_settings)
-    val navigation = findViewById<View>(R.id.navigation) as BottomNavigationView
+    /*val navigation = findViewById<View>(R.id.navigation) as BottomNavigationView
     navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     server1 = listOf<Pair<String, EditText>>(
         Pair("server1_host", findViewById<EditText>(R.id.server1_host) as EditText),
@@ -51,7 +51,7 @@ class SettingsActivity : AppCompatActivity() {
     )
     initSettings()
     val saveSettingsBtn = findViewById<Button>(R.id.save_settings) as Button
-    saveSettingsBtn.setOnClickListener { saveSettingsAction() }
+    saveSettingsBtn.setOnClickListener { saveSettingsAction() }*/
   }
 
   fun initSettings(){
