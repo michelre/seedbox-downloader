@@ -4,10 +4,70 @@
              android:layout_height="match_parent"
              tools:context="com.example.remimichel.seedboxdownloader.view.SettingsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/title_settings"/>
+            android:orientation="vertical">
+
+
+        <TextView
+                android:text="Serveur 1"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginLeft="16dp"
+                android:gravity="left|center"
+                android:id="@+id/textView2"
+                android:textColor="@color/colorPrimary"/>
+
+        <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Host">
+
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:inputType="text"
+                    android:id="@+id/server1_host"
+                    android:layout_weight="1"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:hint="Login">
+
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:inputType="text"
+                    android:id="@+id/server1_login"
+                    android:layout_weight="1"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="16dp"
+                android:hint="Password">
+
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:inputType="textPassword"
+                    android:id="@+id/server1_password"
+                    android:layout_weight="1"/>
+
+        </android.support.design.widget.TextInputLayout>
+    </LinearLayout>
 
 </FrameLayout>
