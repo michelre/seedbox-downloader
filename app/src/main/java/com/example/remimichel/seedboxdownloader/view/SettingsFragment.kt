@@ -1,34 +1,33 @@
 package com.example.remimichel.seedboxdownloader.view
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 
 import com.example.remimichel.seedboxdownloader.R
-import com.example.remimichel.seedboxdownloader.data.remote.File
-import com.example.remimichel.seedboxdownloader.presenter.*
+import com.example.remimichel.seedboxdownloader.presenter.saveSetting
 
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
- * [FilesFragment.OnFragmentInteractionListener] interface
+ * [SettingsFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [FilesFragment.newInstance] factory method to
+ * Use the [SettingsFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class FilesFragment : Fragment(), FtpListView, BaseFragment {
+class SettingsFragment : Fragment() {
 
   // TODO: Rename and change types of parameters
   private var mParam1: String? = null
   private var mParam2: String? = null
-  private lateinit var adapter: FileFTPAdapter
 
   private var mListener: OnFragmentInteractionListener? = null
 
@@ -43,7 +42,11 @@ class FilesFragment : Fragment(), FtpListView, BaseFragment {
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                             savedInstanceState: Bundle?): View? {
     // Inflate the layout for this fragment
-    return inflater.inflate(R.layout.fragment_files, container, false)
+    return inflater.inflate(R.layout.fragment_settings, container, false)
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    initSettings()
   }
 
   // TODO: Rename method, update argument and hook method into UI event
@@ -53,9 +56,34 @@ class FilesFragment : Fragment(), FtpListView, BaseFragment {
     }
   }
 
-  override fun onBackPressed(): Boolean {
-    onBackButtonClick(this, getCredentials("server1"))
-    return true
+  fun initSettings() {
+    val sharedPreferences = activity!!.getSharedPreferences("settings", Context.MODE_PRIVATE)
+    val fields = listOf(
+        R.id.server1_host to "server1_host",
+        R.id.server1_login to "server1_login",
+        R.id.server1_password to "server1_password",
+        R.id.server2_host to "server2_host",
+        R.id.server2_login to "server2_login",
+        R.id.server2_password to "server2_password"
+    )
+    initSettingsListeners(fields, sharedPreferences)
+    initSettingValues(fields, sharedPreferences)
+  }
+
+  fun initSettingsListeners(fields: List<Pair<Int, String>>, sharedPreferences: SharedPreferences) {
+    fields.map { field ->
+      view!!.findViewById<EditText>(field.first).addTextChangedListener(object : TextWatcher {
+        override fun afterTextChanged(s: Editable?) {}
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+          saveSetting(sharedPreferences, field.second to s.toString())
+        }
+      })
+    }
+  }
+
+  fun initSettingValues(fields: List<Pair<Int, String>>, sharedPreferences: SharedPreferences) {
+    fields.map { field -> view!!.findViewById<EditText>(field.first).setText(sharedPreferences.getString(field.second, "")) }
   }
 
   override fun onAttach(context: Context?) {
@@ -70,39 +98,6 @@ class FilesFragment : Fragment(), FtpListView, BaseFragment {
   override fun onDetach() {
     super.onDetach()
     mListener = null
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    setupFTPList()
-    initFtpContent(this, this.getCredentials("server1"))
-  }
-
-  override fun displayList(files: List<File>) {
-    activity!!.runOnUiThread {
-      this.adapter.files = files
-      this.adapter.notifyDataSetChanged()
-    }
-  }
-
-  override fun drawError(error: Throwable) {
-    Log.e("APPP", "", error)
-  }
-
-  fun getCredentials(server: String): Map<String, String> {
-    val sharedPreferences = activity!!.getSharedPreferences("settings", Context.MODE_PRIVATE)
-    return mapOf(
-        "host" to sharedPreferences.getString("${server}_host", ""),
-        "login" to sharedPreferences.getString("${server}_login", ""),
-        "password" to sharedPreferences.getString("${server}_password", "")
-    )
-  }
-
-  fun setupFTPList() {
-    val recyclerView = view!!.findViewById<RecyclerView>(R.id.file_view)
-    recyclerView.setHasFixedSize(true)
-    adapter = FileFTPAdapter(listOf(), { onFtpListItemClick(this, it) })
-    recyclerView.layoutManager = LinearLayoutManager(activity)
-    recyclerView.adapter = adapter
   }
 
   /**
@@ -131,11 +126,11 @@ class FilesFragment : Fragment(), FtpListView, BaseFragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment FilesFragment.
+     * @return A new instance of fragment SettingsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    fun newInstance(param1: String, param2: String): FilesFragment {
-      val fragment = FilesFragment()
+    fun newInstance(param1: String, param2: String): SettingsFragment {
+      val fragment = SettingsFragment()
       val args = Bundle()
       args.putString(ARG_PARAM1, param1)
       args.putString(ARG_PARAM2, param2)

@@ -1,5 +1,7 @@
 package com.example.remimichel.seedboxdownloader.presenter
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import com.example.remimichel.seedboxdownloader.data.remote.File
 import com.example.remimichel.seedboxdownloader.data.remote.connect
@@ -9,6 +11,10 @@ import org.apache.commons.net.ftp.FTPClient
 interface FtpListView {
   fun displayList(files: List<File>)
   fun drawError(error: Throwable)
+}
+
+interface BaseFragment {
+  fun onBackPressed(): Boolean
 }
 
 data class StateView(var currentPath: List<String> = listOf("/"), var ftp: FTPClient = FTPClient())

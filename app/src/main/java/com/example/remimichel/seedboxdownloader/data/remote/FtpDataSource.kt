@@ -1,5 +1,6 @@
 package com.example.remimichel.seedboxdownloader.data.remote
 
+import android.util.Log
 import arrow.data.Try
 import arrow.effects.IO
 import kotlinx.coroutines.experimental.async
@@ -12,7 +13,7 @@ class CommandException(override var message: String) : Exception(message)
 fun <A, B> runFtpCommand(ftp: FTPClient, command: (FTPClient) -> A, onSuccess: (A) -> B): IO<B> {
   return IO.async { callback ->
     async {
-      val res = Try { command(ftp) }
+      val res = Try { Log.d("APPP", ftp.replyString ?: ""); command(ftp) }
           .map({ res ->
             if (res is Boolean && !res) {
               throw CommandException(ftp.replyString)
@@ -28,10 +29,11 @@ fun connect(credentials: Map<String, String>): IO<FTPClient> {
   val ftp = FTPClient()
   return runFtpCommand(ftp, { it.connect(credentials["host"]) }, {})
       .flatMap { runFtpCommand(ftp, { it.login(credentials["login"], credentials["password"]) }, { ftp }) }
+      .flatMap { runFtpCommand(ftp, { it.enterLocalPassiveMode() }, { ftp }) }
 }
 
 fun getFilesAndDirectories(ftp: FTPClient, basePath: String): IO<List<File>> {
-  return runFtpCommand(ftp, { it.changeWorkingDirectory(basePath) }, { })
+      return runFtpCommand(ftp, { it.changeWorkingDirectory(basePath) }, { })
       .flatMap { runFtpCommand(ftp, { it.listFiles() }, { it.map { File(it.name, it.isDirectory) } }) }
 }
 
